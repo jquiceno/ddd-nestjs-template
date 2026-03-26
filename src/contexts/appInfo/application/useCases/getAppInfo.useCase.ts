@@ -1,10 +1,21 @@
 import { AppInfoAggregate } from '../../domain/aggregates/appInfo.aggregate';
-import { IGetAppInfoService } from '../interfaces/getAppInfo.service.interface';
+import { IGetNpmPackageService } from '../interfaces/getNpmPackage.service.interface';
 
 export class GetAppInfoUseCase {
-  constructor(private readonly getAppInfoService: IGetAppInfoService) {}
+  private readonly startedAt: Date;
+
+  constructor(private readonly getNpmPackageService: IGetNpmPackageService) {
+    this.startedAt = new Date();
+  }
 
   execute(): AppInfoAggregate {
-    return this.getAppInfoService.execute();
+    const npmPackage = this.getNpmPackageService.execute();
+
+    return AppInfoAggregate.create({
+      status: 'ok',
+      name: npmPackage.name,
+      version: npmPackage.version,
+      startedAt: this.startedAt,
+    });
   }
 }

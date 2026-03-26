@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { readFileSync } from 'node:fs';
-import { INpmPackage } from '../../../../interfaces/npmPackage.interface';
+import { INpmPackage } from '@context/appInfo/application/interfaces/npmPackage.interface';
+import { IGetNpmPackageService } from '@context/appInfo/application/interfaces/getNpmPackage.service.interface';
 import { join } from 'node:path';
 
 @Injectable()
-export class GetNpmPackageAdapter {
+export class GetNpmPackageAdapter implements IGetNpmPackageService {
   private readonly npmPackageData: INpmPackage;
 
   constructor() {

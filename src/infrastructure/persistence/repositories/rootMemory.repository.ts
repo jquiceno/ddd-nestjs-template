@@ -1,7 +1,7 @@
 import { RootAggregate } from '@context/_shared/domain/aggregates/root.aggregate';
 import { IRootEntity } from '@context/_shared/domain/interfaces/root.entity';
 import { IRootRepository } from '@context/_shared/domain/repositories/root.repository';
-import { IDocumentRootEntity } from '@infrastructure/_shared/persistence/interfaces/doc.root';
+import { IDocumentRootEntity } from '../interfaces/doc.root';
 
 export abstract class RootMemoryRepository<
   D extends IDocumentRootEntity,

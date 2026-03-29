@@ -1,14 +1,22 @@
 import { IPetRepository } from '../../domain/repositories/pet.repository';
-import { mapPetAggregateToReadModel, PetReadModel } from '../pet.readModel';
 
 export interface GetPetByIdInput {
   id: string;
 }
 
+export interface GetPetByIdOutput {
+  id: string;
+  name: string;
+  birthDate: Date;
+  breed: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export class GetPetByIdUseCase {
   constructor(private readonly petRepository: IPetRepository) {}
 
-  execute(input: GetPetByIdInput): PetReadModel | undefined {
+  execute(input: GetPetByIdInput): GetPetByIdOutput | undefined {
     const aggregate = this.petRepository.findById(input.id);
 
     if (!aggregate) return undefined;

@@ -1,38 +1,50 @@
-import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { DynamicModule, Module } from '@nestjs/common';
 import { APP_LOGGER_PORT } from '../../../contexts/_shared/application/ports/logger.port';
-import { PinoLoggerAdapter } from '../../../infrastructure/adapters/pinoLogger.adapter';
+import {
+  BuildPinoLoggerOptions,
+  PinoLoggerAdapter,
+} from '../../../infrastructure/adapters/pinoLogger.adapter';
 import { LoggerService } from './logger.service';
 import { normalizeLoggerConfig } from './loggingConfig.utils';
 import { RequestLoggingMiddleware } from './requestLogging.middleware';
 
-@Module({
-  providers: [
-    {
-      provide: APP_LOGGER_PORT,
-      useFactory: (configService: ConfigService) => {
-        const loggerConfig = normalizeLoggerConfig(configService.get('logger'));
+export interface LoggerModuleOptions extends BuildPinoLoggerOptions {
+  service: string;
+  global: boolean;
+  includeStack: boolean;
+}
 
-        const logger = PinoLoggerAdapter.build({
-          service: loggerConfig.service,
-          environment: loggerConfig.environment,
-          version: loggerConfig.version,
-          level: loggerConfig.level,
-          pretty: loggerConfig.pretty,
-          includeStack: loggerConfig.includeStack,
-          redactPaths: loggerConfig.redactPaths,
-        });
+export interface LoggerModuleAsyncOptions {
+  useFactory: (...args: any[]) => LoggerModuleOptions;
+  inject: any[];
+  imports: any[];
+}
 
-        return new PinoLoggerAdapter(
-          logger,
-          Boolean(loggerConfig.includeStack),
-        );
-      },
-      inject: [ConfigService],
-    },
-    LoggerService,
-    RequestLoggingMiddleware,
-  ],
-  exports: [APP_LOGGER_PORT, LoggerService, RequestLoggingMiddleware],
-})
-export class LoggingModule {}
+@Module({})
+export class LoggingModule {
+  static forRootAsync(options: LoggerModuleAsyncOptions): DynamicModule {
+    const loggerOptionsProvider = {
+      provide: 'LOGGER_OPTIONS',
+      useFactory: options.useFactory,
+      inject: options.inject,
+    };
+
+    return {
+      imports: options.imports,
+      module: LoggingModule,
+      providers: [
+        loggerOptionsProvider,
+        RequestLoggingMiddleware,
+        {
+          provide: LoggerService,
+          useFactory: (options: LoggerModuleOptions) => {
+            const loggerConfig = normalizeLoggerConfig(options);
+            return new LoggerService(loggerConfig, options.includeStack);
+          },
+          inject: ['LOGGER_OPTIONS'],
+        },
+      ],
+      exports: [LoggerService, RequestLoggingMiddleware],
+    };
+  }
+}

@@ -20,4 +20,9 @@ export const envSchema = Joi.object({
     .try(Joi.boolean(), Joi.string().valid('0', '1', 'true', 'false'))
     .optional(),
   LOG_REDACT_PATHS: Joi.string().optional(),
+  SENTRY_DSN: Joi.string().uri().optional().allow(''),
+  SENTRY_TRACES_SAMPLE_RATE: Joi.number().min(0).max(1).optional(),
+  SENTRY_SEND_DEFAULT_PII: Joi.alternatives()
+    .try(Joi.boolean(), Joi.string().valid('0', '1', 'true', 'false'))
+    .optional(),
 });

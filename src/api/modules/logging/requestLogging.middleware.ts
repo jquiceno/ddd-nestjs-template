@@ -1,15 +1,11 @@
-import { Inject, Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type { NextFunction, Request, Response } from 'express';
-import { APP_LOGGER_PORT } from '../../../contexts/_shared/application/ports/logger.port';
-import type { IAppLoggerPort } from '../../../contexts/_shared/application/ports/logger.port';
+import { LoggerService } from './logger.service';
 
 @Injectable()
 export class RequestLoggingMiddleware implements NestMiddleware {
-  constructor(
-    @Inject(APP_LOGGER_PORT)
-    private readonly appLogger: IAppLoggerPort,
-  ) {}
+  constructor(private readonly appLogger: LoggerService) {}
 
   use(req: Request, res: Response, next: NextFunction): void {
     const startedAt = process.hrtime.bigint();
@@ -23,7 +19,11 @@ export class RequestLoggingMiddleware implements NestMiddleware {
         (req.route as { path?: string })?.path ?? req.originalUrl ?? req.url;
       const statusCode = res.statusCode;
       const level =
-        statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
+        statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'log';
+
+      if (!this.appLogger[level]) {
+        return;
+      }
 
       this.appLogger[level]('HTTP request completed', {
         event: 'http.request.completed',

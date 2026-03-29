@@ -3,6 +3,7 @@ import {
   IAppLoggerPort,
   LogContext,
 } from '../../contexts/_shared/application/ports/logger.port';
+import * as Sentry from '@sentry/nestjs';
 
 export interface BuildPinoLoggerOptions {
   service: string;
@@ -15,10 +16,14 @@ export interface BuildPinoLoggerOptions {
 }
 
 export class PinoLoggerAdapter implements IAppLoggerPort {
+  private readonly logger: PinoLogger;
+
   constructor(
-    private readonly logger: PinoLogger,
+    private readonly options: BuildPinoLoggerOptions,
     private readonly includeStack: boolean,
-  ) {}
+  ) {
+    this.logger = this.build(options);
+  }
 
   fatal(message: string, context?: LogContext): void {
     this.logger.fatal(this.toPayload(context), message);
@@ -34,6 +39,12 @@ export class PinoLoggerAdapter implements IAppLoggerPort {
 
   info(message: string, context?: LogContext): void {
     this.logger.info(this.toPayload(context), message);
+    Sentry.logger.info(message, { context: this.toPayload(context) });
+  }
+
+  log(message: string, context?: LogContext): void {
+    this.logger.info(this.toPayload(context), message);
+    Sentry.logger.info(message, { context: this.toPayload(context) });
   }
 
   debug(message: string, context?: LogContext): void {
@@ -42,13 +53,6 @@ export class PinoLoggerAdapter implements IAppLoggerPort {
 
   trace(message: string, context?: LogContext): void {
     this.logger.trace(this.toPayload(context), message);
-  }
-
-  child(bindings: Omit<LogContext, 'error' | 'http' | 'meta'>): IAppLoggerPort {
-    return new PinoLoggerAdapter(
-      this.logger.child(this.toPayload(bindings)),
-      this.includeStack,
-    );
   }
 
   private toPayload(context?: LogContext): Record<string, unknown> {
@@ -84,7 +88,7 @@ export class PinoLoggerAdapter implements IAppLoggerPort {
     };
   }
 
-  static build(options: BuildPinoLoggerOptions): PinoLogger {
+  private build(options: BuildPinoLoggerOptions): PinoLogger {
     return pino({
       level: options.level,
       base: {

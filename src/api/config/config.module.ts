@@ -8,12 +8,13 @@ import { envSchema } from './validation/env.schema';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
+      isGlobal: false,
       load: [appConfig, httpConfig, loggerConfig],
       validationSchema: envSchema,
       cache: true,
       expandVariables: true,
     }),
   ],
+  exports: [ConfigModule],
 })
 export class ApiConfigModule {}

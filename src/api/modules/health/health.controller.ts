@@ -20,4 +20,9 @@ export class HealthController {
       () => this.memory.checkHeap('memory', 150 * 1024 * 1024),
     ]);
   }
+
+  @Get('/debug')
+  getError() {
+    throw new Error(`Debug error! -> at ${new Date().toISOString()}`);
+  }
 }

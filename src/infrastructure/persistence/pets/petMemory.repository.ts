@@ -1,6 +1,6 @@
 import { IPetRepository } from '@context/pets/domain/repositories/pet.repository';
 import { PetAggregate } from '@context/pets/domain/aggregates/pet.aggregate';
-import { RootMemoryRepository } from '@infrastructure/_shared/persistence/repositories/rootMemory.repository';
+import { RootMemoryRepository } from '../repositories/rootMemory.repository';
 import { IPetDocument } from './petDocument.interface';
 
 export class PetMemoryRepository

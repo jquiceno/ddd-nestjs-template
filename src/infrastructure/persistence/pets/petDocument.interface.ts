@@ -1,4 +1,4 @@
-import { IDocumentRootEntity } from '@infrastructure/_shared/persistence/interfaces/doc.root';
+import { IDocumentRootEntity } from '../interfaces/doc.root';
 
 export interface IPetDocument extends IDocumentRootEntity {
   name: string;

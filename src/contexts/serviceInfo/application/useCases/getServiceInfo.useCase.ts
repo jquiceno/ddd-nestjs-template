@@ -1,29 +1,29 @@
 import { ServiceInfoAggregate } from '../../domain/aggregates/serviceInfo.aggregate';
-import { IGetNpmPackagePort } from '../ports/getNpmPackage.port';
+import { GetServiceInfoPort } from '../ports/getServiceInfo.port';
 import { GetServiceInfoOutput } from './getServiceInfo.output';
 
 export class GetServiceInfoUseCase {
   private readonly startedAt: Date;
 
-  constructor(private readonly getNpmPackagePort: IGetNpmPackagePort) {
+  constructor(private readonly getServiceInfoPort: GetServiceInfoPort) {
     this.startedAt = new Date();
   }
 
   execute(): GetServiceInfoOutput {
-    const npmPackage = this.getNpmPackagePort.execute();
+    const serviceInfo = this.getServiceInfoPort.execute();
 
-    const serviceInfo = ServiceInfoAggregate.create({
+    const aServiceInfo = ServiceInfoAggregate.create({
       status: 'ok',
-      name: npmPackage.name,
-      version: npmPackage.version,
+      name: serviceInfo.name,
+      version: serviceInfo.version,
       startedAt: this.startedAt,
     });
 
     return {
-      status: serviceInfo.status,
-      name: serviceInfo.name,
-      version: serviceInfo.version,
-      startedAt: serviceInfo.startedAt,
+      status: aServiceInfo.status,
+      name: aServiceInfo.name,
+      version: aServiceInfo.version,
+      startedAt: aServiceInfo.startedAt,
     };
   }
 }

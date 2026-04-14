@@ -12,8 +12,8 @@ export interface ListPetsOutput {
 export class ListPetsUseCase {
   constructor(private readonly petRepository: IPetRepository) {}
 
-  execute(): ListPetsOutput[] {
-    const aggregates = this.petRepository.findAll();
+  async execute(): Promise<ListPetsOutput[]> {
+    const aggregates = await this.petRepository.findAll();
 
     return aggregates.map((aggregate) => ({
       id: aggregate.id,

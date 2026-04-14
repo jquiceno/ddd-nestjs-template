@@ -42,8 +42,8 @@ export class PetsController {
   ) {}
 
   @Post()
-  create(@Body() body: CreatePetBodyDto): PetResponseDto {
-    const result = this.createPetUseCase.execute({
+  async create(@Body() body: CreatePetBodyDto): Promise<PetResponseDto> {
+    const result = await this.createPetUseCase.execute({
       name: body.name,
       birthDate: body.birthDate,
       breed: body.breed,
@@ -61,8 +61,8 @@ export class PetsController {
   @Get()
   @CacheKey('PETS')
   @CacheTTL(60 * 60 * 24)
-  findAll(): PetResponseDto[] {
-    const pets = this.listPetsUseCase.execute();
+  async findAll(): Promise<PetResponseDto[]> {
+    const pets = await this.listPetsUseCase.execute();
     return pets.map((pet) => ({
       id: pet.id,
       name: pet.name,
@@ -74,8 +74,8 @@ export class PetsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): PetResponseDto {
-    const pet = this.getPetByIdUseCase.execute({ id });
+  async findOne(@Param('id') id: string): Promise<PetResponseDto> {
+    const pet = await this.getPetByIdUseCase.execute({ id });
     if (!pet) {
       throw new NotFoundException(`Pet with id ${id} not found`);
     }
@@ -90,11 +90,11 @@ export class PetsController {
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() body: UpdatePetBodyDto,
-  ): PetResponseDto {
-    const pet = this.updatePetUseCase.execute({
+  ): Promise<PetResponseDto> {
+    const pet = await this.updatePetUseCase.execute({
       id,
       name: body.name,
       birthDate: body.birthDate,

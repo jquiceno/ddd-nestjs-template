@@ -19,8 +19,8 @@ export interface UpdatePetOutput {
 export class UpdatePetUseCase {
   constructor(private readonly petRepository: IPetRepository) {}
 
-  execute(input: UpdatePetInput): UpdatePetOutput | undefined {
-    const existing = this.petRepository.findById(input.id);
+  async execute(input: UpdatePetInput): Promise<UpdatePetOutput | undefined> {
+    const existing = await this.petRepository.findById(input.id);
 
     if (!existing) return undefined;
 
@@ -30,7 +30,7 @@ export class UpdatePetUseCase {
       breed: input.breed,
     });
 
-    const saved = this.petRepository.update(updated);
+    const saved = await this.petRepository.update(updated);
 
     if (!saved) return undefined;
 

@@ -7,7 +7,7 @@ export interface DeletePetInput {
 export class DeletePetUseCase {
   constructor(private readonly petRepository: IPetRepository) {}
 
-  execute(input: DeletePetInput): boolean {
+  async execute(input: DeletePetInput): Promise<boolean> {
     return this.petRepository.delete(input.id);
   }
 }

@@ -19,14 +19,14 @@ export interface CreatePetOutput {
 export class CreatePetUseCase {
   constructor(private readonly petRepository: IPetRepository) {}
 
-  execute(input: CreatePetInput): CreatePetOutput {
+  async execute(input: CreatePetInput): Promise<CreatePetOutput> {
     const aggregate = PetAggregate.create({
       name: input.name,
       birthDate: input.birthDate,
       breed: input.breed,
     });
 
-    const saved = this.petRepository.create(aggregate);
+    const saved = await this.petRepository.create(aggregate);
 
     return {
       id: saved.id,

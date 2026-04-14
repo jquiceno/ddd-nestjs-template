@@ -8,11 +8,17 @@ import { UpdatePetUseCase } from '@context/pets/application/useCases/updatePet.u
 import { PetMemoryRepository } from '@infrastructure/persistence/pets/petMemory.repository';
 
 import { PetsController } from './pets.controller';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { ICache } from '@infrastructure/interfaces/cache.interface';
 
 @Module({
   controllers: [PetsController],
   providers: [
-    PetMemoryRepository,
+    {
+      provide: PetMemoryRepository,
+      useFactory: (cache: ICache) => new PetMemoryRepository(cache),
+      inject: [CACHE_MANAGER],
+    },
     {
       provide: CreatePetUseCase,
       useFactory: (repo: PetMemoryRepository) => new CreatePetUseCase(repo),

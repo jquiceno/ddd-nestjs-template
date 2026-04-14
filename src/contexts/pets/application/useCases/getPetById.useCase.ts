@@ -16,8 +16,8 @@ export interface GetPetByIdOutput {
 export class GetPetByIdUseCase {
   constructor(private readonly petRepository: IPetRepository) {}
 
-  execute(input: GetPetByIdInput): GetPetByIdOutput | undefined {
-    const aggregate = this.petRepository.findById(input.id);
+  async execute(input: GetPetByIdInput): Promise<GetPetByIdOutput | undefined> {
+    const aggregate = await this.petRepository.findById(input.id);
 
     if (!aggregate) return undefined;
 

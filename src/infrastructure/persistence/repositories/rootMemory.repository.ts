@@ -2,20 +2,30 @@ import { RootAggregate } from '@shared/domain/aggregates/root.aggregate';
 import { IRootEntity } from '@shared/domain/interfaces/root.entity';
 import { IRootRepository } from '@shared/domain/repositories/root.repository';
 import { IDocumentRootEntity } from '../interfaces/doc.root';
+import { ICache } from '../../interfaces/cache.interface';
 
 export abstract class RootMemoryRepository<
   D extends IDocumentRootEntity,
   A extends RootAggregate<IRootEntity>,
 > implements IRootRepository<A> {
   private readonly store = new Map<string, D>();
+  private readonly cacheKey: string;
 
-  create(aggregate: A): A {
+  constructor(private readonly cache: ICache, cacheKey: string) {
+    this.cache = cache;
+    this.cacheKey = cacheKey
+  }
+
+  async create(aggregate: A): Promise<A> {
     if (this.store.has(aggregate.id)) {
       throw new Error(
         `Entity with id "${String(aggregate.id)}" already exists`,
       );
     }
 
+    this.cache.del(this.cacheKey);
+    
+
     const document = this.toDocument(aggregate);
 
     this.store.set(document.id, document);
@@ -23,23 +33,30 @@ export abstract class RootMemoryRepository<
     return aggregate;
   }
 
-  findById(id: A['id']): A | undefined {
+  async findById(id: A['id']): Promise<A | undefined> {
     const document = this.store.get(id);
     return document ? this.toAggregate(document) : undefined;
   }
 
-  findAll(): A[] {
-    const documents = Array.from(this.store.values());
-    return documents.map((document) => this.toAggregate(document));
+  async findAll(): Promise<A[]> {
+    try {
+      await setTimeout(() => Promise.resolve(), 40000);
+
+      const documents = Array.from(this.store.values());
+      return documents.map((document) => this.toAggregate(document));
+    } catch (error) {
+      console.error('error', error);
+      throw error;
+    }
   }
 
-  update(aggregate: A): A | undefined {
+  async update(aggregate: A): Promise<A | undefined> {
     const document = this.toDocument(aggregate);
     this.store.set(document.id, document);
     return aggregate;
   }
 
-  delete(id: A['id']): boolean {
+  async delete(id: A['id']): Promise<boolean> {
     return this.store.delete(id);
   }
 
@@ -47,7 +64,7 @@ export abstract class RootMemoryRepository<
     return this.store.has(id);
   }
 
-  count(): number {
+  async count(): Promise<number> {
     return this.store.size;
   }
 

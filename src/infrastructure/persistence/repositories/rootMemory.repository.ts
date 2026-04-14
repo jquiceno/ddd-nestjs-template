@@ -1,6 +1,6 @@
-import { RootAggregate } from '@context/_shared/domain/aggregates/root.aggregate';
-import { IRootEntity } from '@context/_shared/domain/interfaces/root.entity';
-import { IRootRepository } from '@context/_shared/domain/repositories/root.repository';
+import { RootAggregate } from '@shared/domain/aggregates/root.aggregate';
+import { IRootEntity } from '@shared/domain/interfaces/root.entity';
+import { IRootRepository } from '@shared/domain/repositories/root.repository';
 import { IDocumentRootEntity } from '../interfaces/doc.root';
 
 export abstract class RootMemoryRepository<

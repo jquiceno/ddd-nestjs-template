@@ -21,7 +21,8 @@ import { UpdatePetUseCase } from '@context/pets/application/useCases/updatePet.u
 
 import { UseInterceptors } from '@nestjs/common';
 import { CreatePetBodyDto, PetResponseDto, UpdatePetBodyDto } from './pets.dto';
-import { CacheKey, CacheTTL, CacheInterceptor } from '@nestjs/cache-manager';
+import { CacheInterceptor } from '@nestjs/cache-manager';
+import { NotFoundError } from '@shared/domain/errors/baseErrors';
 
 @Controller('pets')
 @UsePipes(
@@ -59,8 +60,6 @@ export class PetsController {
   }
 
   @Get()
-  @CacheKey('PETS')
-  @CacheTTL(60 * 60 * 24)
   async findAll(): Promise<PetResponseDto[]> {
     const pets = await this.listPetsUseCase.execute();
     return pets.map((pet) => ({
@@ -76,17 +75,12 @@ export class PetsController {
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<PetResponseDto> {
     const pet = await this.getPetByIdUseCase.execute({ id });
-    if (!pet) {
-      throw new NotFoundException(`Pet with id ${id} not found`);
+
+    if (pet instanceof NotFoundError) {
+      throw new NotFoundException(pet.message);
     }
-    return {
-      id: pet.id,
-      name: pet.name,
-      birthDate: pet.birthDate,
-      breed: pet.breed,
-      createdAt: pet.createdAt,
-      updatedAt: pet.updatedAt,
-    };
+
+    return pet;
   }
 
   @Put(':id')
@@ -94,25 +88,13 @@ export class PetsController {
     @Param('id') id: string,
     @Body() body: UpdatePetBodyDto,
   ): Promise<PetResponseDto> {
-    const pet = await this.updatePetUseCase.execute({
-      id,
-      name: body.name,
-      birthDate: body.birthDate,
-      breed: body.breed,
-    });
+    const pet = await this.updatePetUseCase.execute({ id, ...body });
 
     if (!pet) {
       throw new NotFoundException(`Pet with id ${id} not found`);
     }
 
-    return {
-      id: pet.id,
-      name: pet.name,
-      birthDate: pet.birthDate,
-      breed: pet.breed,
-      createdAt: pet.createdAt,
-      updatedAt: pet.updatedAt,
-    };
+    return pet;
   }
 
   @Delete(':id')

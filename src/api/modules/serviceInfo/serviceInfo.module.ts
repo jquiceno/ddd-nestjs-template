@@ -1,28 +1,30 @@
 import { Module } from '@nestjs/common';
 import { GetServiceInfoUseCase } from '@context/serviceInfo/application/useCases/getServiceInfo.useCase';
 import {
-  GET_NPM_PACKAGE_PORT,
-  IGetNpmPackagePort,
-} from '@context/serviceInfo/application/ports/getNpmPackage.port';
+  GET_SERVICE_INFO_PORT,
+  GetServiceInfoPort,
+} from '@context/serviceInfo/application/ports/getServiceInfo.port';
 import { ServiceInfoController } from './serviceInfo.controller';
 import { GetServiceInfoMapper } from './serviceInfo.mapper';
-import { GetNpmPackageAdapter } from '../../../infrastructure/adapters/getNpmPackage.adapter';
+import { PkgJsonGetServiceInfoAdapter } from '../../../infrastructure/adapters/pkgJsonGetServiceInfo.adapter';
+import { GetPackageJsonDataService } from '@infrastructure/services/getPackageJsonData.service';
 
 @Module({
   controllers: [ServiceInfoController],
   providers: [
     GetServiceInfoMapper,
-    GetNpmPackageAdapter,
+    PkgJsonGetServiceInfoAdapter,
     {
-      provide: GET_NPM_PACKAGE_PORT,
-      useExisting: GetNpmPackageAdapter,
+      provide: GET_SERVICE_INFO_PORT,
+      useExisting: PkgJsonGetServiceInfoAdapter,
     },
     {
       provide: GetServiceInfoUseCase,
-      useFactory: (getNpmPackagePort: IGetNpmPackagePort) =>
+      useFactory: (getNpmPackagePort: GetServiceInfoPort) =>
         new GetServiceInfoUseCase(getNpmPackagePort),
-      inject: [GET_NPM_PACKAGE_PORT],
+      inject: [GET_SERVICE_INFO_PORT],
     },
+    GetPackageJsonDataService,
   ],
 })
 export class ServiceInfoModule {}

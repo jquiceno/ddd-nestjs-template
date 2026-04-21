@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
-import { RootAggregate } from '@context/_shared/domain/aggregates/root.aggregate';
+import { RootAggregate } from '@shared/domain/aggregates/root.aggregate';
 
 import { CreatePetProps, IPet, UpdatePetProps } from '../entities/pet.entity';
 

@@ -1,40 +1,28 @@
+import { Result } from '@shared/domain/result/result';
+import { ConflictError } from '@shared/domain/errors/baseErrors';
 import { PetAggregate } from '../../domain/aggregates/pet.aggregate';
 import { IPetRepository } from '../../domain/repositories/pet.repository';
+import { CreatePetInput, CreatePetOutput } from './createPet.dto';
 
-export interface CreatePetInput {
-  name: string;
-  birthDate: Date;
-  breed: string;
-}
-
-export interface CreatePetOutput {
-  id: string;
-  name: string;
-  birthDate: Date;
-  breed: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 export class CreatePetUseCase {
   constructor(private readonly petRepository: IPetRepository) {}
 
-  execute(input: CreatePetInput): CreatePetOutput {
-    const aggregate = PetAggregate.create({
-      name: input.name,
-      birthDate: input.birthDate,
-      breed: input.breed,
+  async execute(input: CreatePetInput): Promise<Result<CreatePetOutput, ConflictError>> {
+    const aggregate = PetAggregate.create(input);
+    const result = await this.petRepository.create(aggregate);
+
+    if (result.isFail) return result
+
+    const petCreated = result.value;
+
+    return Result.ok({
+      id: petCreated.id,
+      name: petCreated.name,
+      birthDate: petCreated.birthDate,
+      breed: petCreated.breed,
+      createdAt: petCreated.createdAt,
+      updatedAt: petCreated.updatedAt,
     });
-
-    const saved = this.petRepository.create(aggregate);
-
-    return {
-      id: saved.id,
-      name: saved.name,
-      birthDate: saved.birthDate,
-      breed: saved.breed,
-      createdAt: saved.createdAt,
-      updatedAt: saved.updatedAt,
-    };
   }
 }

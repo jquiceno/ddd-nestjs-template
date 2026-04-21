@@ -1,4 +1,4 @@
-import { IRootEntity } from '@context/_shared/domain/interfaces/root.entity';
+import { IRootEntity } from '@shared/domain/interfaces/root.entity';
 
 export interface IPet extends IRootEntity {
   name: string;

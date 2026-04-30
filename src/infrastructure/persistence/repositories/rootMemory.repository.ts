@@ -1,3 +1,4 @@
+import Datastore from '@seald-io/nedb';
 import { RootAggregate } from '@shared/domain/aggregates/root.aggregate';
 import { ConflictError, NotFoundError } from '@shared/domain/errors/baseErrors';
 import { IRootEntity } from '@shared/domain/interfaces/root.entity';
@@ -6,11 +7,13 @@ import { Result } from '@shared/domain/result/result';
 import { ICache } from '@infrastructure/interfaces/cache.interface';
 import { IDocumentRootEntity } from '../interfaces/doc.root';
 
+type NedbDocument<D> = D & { _id: string };
+
 export abstract class RootMemoryRepository<
   D extends IDocumentRootEntity,
   A extends RootAggregate<IRootEntity>,
 > implements IRootRepository<A> {
-  private readonly store = new Map<string, D>();
+  private readonly store: Datastore<NedbDocument<D>>;
   private readonly cacheKey: string;
 
   constructor(
@@ -18,10 +21,15 @@ export abstract class RootMemoryRepository<
     cacheKey: string,
   ) {
     this.cacheKey = cacheKey;
+    this.store = new Datastore<NedbDocument<D>>();
+    this.store.ensureIndex({ fieldName: 'id', unique: true });
   }
 
   async create(aggregate: A): Promise<Result<A, ConflictError>> {
-    if (this.store.has(aggregate.id)) {
+    const document = this.toDocument(aggregate);
+    const existing = await this.store.findOneAsync({ id: document.id } as Partial<NedbDocument<D>>);
+
+    if (existing) {
       return Result.fail(
         new ConflictError({
           context: 'REPOSITORY',
@@ -32,14 +40,12 @@ export abstract class RootMemoryRepository<
       );
     }
 
-    const document = this.toDocument(aggregate);
-    this.store.set(document.id, document);
-
+    await this.store.insertAsync({ ...document, _id: document.id } as NedbDocument<D>);
     return Result.ok(aggregate);
   }
 
   async findById(id: A['id']): Promise<Result<A, NotFoundError>> {
-    const document = this.store.get(id);
+    const document = await this.store.findOneAsync({ _id: id } as Partial<NedbDocument<D>>);
 
     if (!document) {
       return Result.fail(
@@ -56,12 +62,19 @@ export abstract class RootMemoryRepository<
   }
 
   async findAll(): Promise<Result<A[], never>> {
-    const documents = Array.from(this.store.values());
+    const documents = await this.store.findAsync({} as Partial<NedbDocument<D>>);
     return Result.ok(documents.map((document) => this.toAggregate(document)));
   }
 
   async update(aggregate: A): Promise<Result<A, NotFoundError>> {
-    if (!this.store.has(aggregate.id)) {
+    const document = this.toDocument(aggregate);
+    const { numAffected } = await this.store.updateAsync(
+      { _id: aggregate.id } as Partial<NedbDocument<D>>,
+      { $set: document } as any,
+      {},
+    );
+
+    if (numAffected === 0) {
       return Result.fail(
         new NotFoundError({
           context: 'REPOSITORY',
@@ -72,14 +85,16 @@ export abstract class RootMemoryRepository<
       );
     }
 
-    const document = this.toDocument(aggregate);
-    this.store.set(document.id, document);
-
     return Result.ok(aggregate);
   }
 
   async delete(id: A['id']): Promise<Result<boolean, NotFoundError>> {
-    if (!this.store.has(id)) {
+    const numRemoved = await this.store.removeAsync(
+      { _id: id } as Partial<NedbDocument<D>>,
+      {},
+    );
+
+    if (numRemoved === 0) {
       return Result.fail(
         new NotFoundError({
           context: 'REPOSITORY',
@@ -90,15 +105,12 @@ export abstract class RootMemoryRepository<
       );
     }
 
-    return Result.ok(this.store.delete(id));
+    return Result.ok(true);
   }
 
   async count(): Promise<Result<number, never>> {
-    return Result.ok(this.store.size);
-  }
-
-  has(id: A['id']): boolean {
-    return this.store.has(id);
+    const total = await this.store.countAsync({} as Partial<NedbDocument<D>>);
+    return Result.ok(total);
   }
 
   abstract toDocument(_aggregate: A): D;

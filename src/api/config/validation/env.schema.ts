@@ -28,4 +28,11 @@ export const envSchema = Joi.object({
   SENTRY_SEND_DEFAULT_PII: Joi.alternatives()
     .try(Joi.boolean(), Joi.string().valid('0', '1', 'true', 'false'))
     .optional(),
+  DB_HOST: Joi.string().optional(),
+  DB_PORT: Joi.number().port().default(1433),
+  DB_USERNAME: Joi.string().optional(),
+  DB_PASSWORD: Joi.string().optional(),
+  DB_DATABASE: Joi.string().optional(),
+  DB_SYNCHRONIZE: Joi.boolean().default(false),
+  DB_ENCRYPT: Joi.boolean().default(true),
 });

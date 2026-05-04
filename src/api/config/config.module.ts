@@ -4,13 +4,14 @@ import appConfig from './factories/app.config';
 import httpConfig from './factories/http.config';
 import loggerConfig from './factories/logger.config';
 import cacheConfig from './factories/cache.config';
+import databaseConfig from './factories/database.config';
 import { envSchema } from './validation/env.schema';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, httpConfig, loggerConfig, cacheConfig],
+      load: [appConfig, httpConfig, loggerConfig, cacheConfig, databaseConfig],
       validationSchema: envSchema,
       cache: true,
       expandVariables: true,

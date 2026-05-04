@@ -14,10 +14,12 @@ import { ConfigService } from '@nestjs/config';
 import { CacheConfig, LoggerConfig } from 'src/api/config/config.types';
 import { CacheModule } from '@nestjs/cache-manager';
 import KeyvRedis from '@keyv/redis';
+import { TypeOrmDatabaseModule } from '@infrastructure/database/typeorm.module';
 
 @Module({
   imports: [
     ApiConfigModule,
+    TypeOrmDatabaseModule,
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ApiConfigModule],

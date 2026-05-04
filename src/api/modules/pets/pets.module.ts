@@ -1,51 +1,46 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CreatePetUseCase } from '@context/pets/application/useCases/createPet.useCase';
 import { DeletePetUseCase } from '@context/pets/application/useCases/deletePet.useCase';
 import { GetPetByIdUseCase } from '@context/pets/application/useCases/getPetById.useCase';
 import { ListPetsUseCase } from '@context/pets/application/useCases/listPets.useCase';
 import { UpdatePetUseCase } from '@context/pets/application/useCases/updatePet.useCase';
-import { PetMemoryRepository } from '@infrastructure/persistence/pets/petMemory.repository';
+import { PetTypeOrmEntity } from '@infrastructure/persistence/pets/petTypeOrm.entity';
+import { PetTypeOrmRepository } from '@infrastructure/persistence/pets/petTypeOrm.repository';
 
 import { PetsController } from './pets.controller';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { ICache } from '@infrastructure/interfaces/cache.interface';
-import { CacheInvalidateInterceptor } from '../../interceptors/cacheInvalidate.interceptor';
 
 @Module({
+  imports: [TypeOrmModule.forFeature([PetTypeOrmEntity])],
   controllers: [PetsController],
   providers: [
-    {
-      provide: PetMemoryRepository,
-      useFactory: (cache: ICache) => new PetMemoryRepository(cache),
-      inject: [CACHE_MANAGER],
-    },
+    PetTypeOrmRepository,
     {
       provide: CreatePetUseCase,
-      useFactory: (repo: PetMemoryRepository) => new CreatePetUseCase(repo),
-      inject: [PetMemoryRepository],
+      useFactory: (repo: PetTypeOrmRepository) => new CreatePetUseCase(repo),
+      inject: [PetTypeOrmRepository],
     },
     {
       provide: GetPetByIdUseCase,
-      useFactory: (repo: PetMemoryRepository) => new GetPetByIdUseCase(repo),
-      inject: [PetMemoryRepository],
+      useFactory: (repo: PetTypeOrmRepository) => new GetPetByIdUseCase(repo),
+      inject: [PetTypeOrmRepository],
     },
     {
       provide: ListPetsUseCase,
-      useFactory: (repo: PetMemoryRepository) => new ListPetsUseCase(repo),
-      inject: [PetMemoryRepository],
+      useFactory: (repo: PetTypeOrmRepository) => new ListPetsUseCase(repo),
+      inject: [PetTypeOrmRepository],
     },
     {
       provide: UpdatePetUseCase,
-      useFactory: (repo: PetMemoryRepository) => new UpdatePetUseCase(repo),
-      inject: [PetMemoryRepository],
+      useFactory: (repo: PetTypeOrmRepository) => new UpdatePetUseCase(repo),
+      inject: [PetTypeOrmRepository],
     },
     {
       provide: DeletePetUseCase,
-      useFactory: (repo: PetMemoryRepository) => new DeletePetUseCase(repo),
-      inject: [PetMemoryRepository],
+      useFactory: (repo: PetTypeOrmRepository) => new DeletePetUseCase(repo),
+      inject: [PetTypeOrmRepository],
     },
-    CacheInvalidateInterceptor,
   ],
 })
 export class PetsModule {}

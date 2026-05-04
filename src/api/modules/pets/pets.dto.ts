@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsDate, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreatePetBodyDto {
   @IsString()
@@ -16,17 +16,20 @@ export class CreatePetBodyDto {
 }
 
 export class UpdatePetBodyDto {
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  name!: string;
+  name?: string;
 
+  @IsOptional()
   @Type(() => Date)
   @IsDate()
-  birthDate!: Date;
+  birthDate?: Date;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  breed!: string;
+  breed?: string;
 }
 
 export class PetResponseDto {

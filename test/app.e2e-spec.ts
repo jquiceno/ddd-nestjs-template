@@ -21,14 +21,14 @@ describe('AppInfoController (e2e)', () => {
       .get('/info')
       .expect(200)
       .expect((res) => {
-        const body = res.body as {
+        const body = res.body.data as {
           status: string;
-          serviceName: string;
+          name: string;
           version: string;
           startedAt: string;
         };
         expect(body.status).toBe('ok');
-        expect(body.serviceName).toBe('ddd-nestjs-template');
+        expect(body.name).toBe('ddd-nestjs-template');
         expect(body.version).toBe('0.0.1');
         expect(typeof body.startedAt).toBe('string');
         expect(new Date(body.startedAt).toString()).not.toBe('Invalid Date');

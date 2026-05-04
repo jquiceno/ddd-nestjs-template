@@ -4,9 +4,15 @@
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "moduleNameMapper": {
-    "^@context/(.*)$": "<rootDir>/../src/contexts/$1"
+    "^@context/(.*)$": "<rootDir>/../src/contexts/$1",
+    "^@shared/(.*)$": "<rootDir>/../src/_shared/$1",
+    "^@infrastructure/(.*)$": "<rootDir>/../src/infrastructure/$1",
+    "^@api/(.*)$": "<rootDir>/../src/api/$1"
   },
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
-  }
+  },
+  "globalSetup": "<rootDir>/globalSetup.ts",
+  "setupFiles": ["<rootDir>/setup.ts"],
+  "testTimeout": 30000
 }

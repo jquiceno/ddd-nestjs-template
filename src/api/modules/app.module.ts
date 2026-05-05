@@ -1,5 +1,4 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { PetsModule } from './pets/pets.module';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseWrapperInterceptor } from '../interceptors/responseWrapper.interceptor';
 import { ResultInterceptor } from '../interceptors/result.interceptor';
@@ -54,7 +53,6 @@ import { TypeOrmDatabaseModule } from '@infrastructure/database/typeorm.module';
       },
       inject: [ConfigService],
     }),
-    PetsModule,
     ServiceInfoModule,
     HealthModule,
   ],

@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 
-export async function clearPetsTable(app: INestApplication): Promise<void> {
+export async function truncateTable(app: INestApplication, tableName: string): Promise<void> {
   const dataSource = app.get(DataSource);
-  await dataSource.query('DELETE FROM pets');
+  await dataSource.query(`DELETE FROM ${tableName}`);
 }

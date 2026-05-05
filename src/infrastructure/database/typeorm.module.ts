@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { ApiConfigModule } from '@api/config/config.module';
 import { DatabaseConfig } from '@api/config/config.types';
-import { PetTypeOrmEntity } from '../persistence/pets/petTypeOrm.entity';
 
 @Module({
   imports: [
@@ -19,7 +18,7 @@ import { PetTypeOrmEntity } from '../persistence/pets/petTypeOrm.entity';
           username: db.username,
           password: db.password,
           database: db.database,
-          entities: [PetTypeOrmEntity],
+          autoLoadEntities: true,
           synchronize: db.synchronize,
           options: { encrypt: db.encrypt },
         };

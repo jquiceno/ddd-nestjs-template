@@ -21,6 +21,7 @@ export class CreatePetUseCase implements AsyncUseCase<CreatePetInput, CreatePetO
       name: saved.name,
       birthDate: saved.birthDate,
       breed: saved.breed,
+      address: saved.address,
       createdAt: saved.createdAt,
       updatedAt: saved.updatedAt,
     });

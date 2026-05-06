@@ -1,5 +1,30 @@
 import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsDate, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator';
+
+export class PetAddressBodyDto {
+  @IsString()
+  @IsNotEmpty()
+  street!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  city!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  zipCode!: string;
+}
+
+export class PetAddressResponseDto {
+  @IsString()
+  street!: string;
+
+  @IsString()
+  city!: string;
+
+  @IsString()
+  zipCode!: string;
+}
 
 export class CreatePetBodyDto {
   @IsString()
@@ -13,6 +38,11 @@ export class CreatePetBodyDto {
   @IsString()
   @IsNotEmpty()
   breed!: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => PetAddressBodyDto)
+  address?: PetAddressBodyDto;
 }
 
 export class UpdatePetBodyDto {
@@ -30,6 +60,11 @@ export class UpdatePetBodyDto {
   @IsString()
   @IsNotEmpty()
   breed?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => PetAddressBodyDto)
+  address?: PetAddressBodyDto;
 }
 
 export class PetResponseDto {
@@ -45,6 +80,11 @@ export class PetResponseDto {
 
   @IsString()
   breed!: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => PetAddressResponseDto)
+  address?: PetAddressResponseDto;
 
   @Type(() => Date)
   @IsDate()

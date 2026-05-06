@@ -8,6 +8,7 @@ export const PetsErrorCode = {
   INVALID_NAME: 'PETS_INVALID_NAME',
   INVALID_BIRTH_DATE: 'PETS_INVALID_BIRTH_DATE',
   INVALID_BREED: 'PETS_INVALID_BREED',
+  INVALID_ADDRESS: 'PETS_INVALID_ADDRESS',
 } as const;
 
 export type PetsErrorCode = typeof PetsErrorCode[keyof typeof PetsErrorCode];
@@ -46,6 +47,15 @@ export const petsErrors = {
       code: PetsErrorCode.INVALID_BREED,
       origin,
       message: 'Invalid pet breed',
+      attributes,
+    }),
+
+  invalidAddress: (origin: string, attributes?: Record<string, unknown>) =>
+    new ValidationError({
+      context,
+      code: PetsErrorCode.INVALID_ADDRESS,
+      origin,
+      message: 'Invalid pet address',
       attributes,
     }),
 };

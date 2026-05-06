@@ -3,6 +3,7 @@ import { PetAggregate } from '@context/pets/domain/aggregates/pet.aggregate';
 import { PetName } from '@context/pets/domain/valueObjects/petName.vo';
 import { PetBirthDate } from '@context/pets/domain/valueObjects/petBirthDate.vo';
 import { PetBreed } from '@context/pets/domain/valueObjects/petBreed.vo';
+import { PetAddress } from '@context/pets/domain/valueObjects/petAddress.vo';
 import { RootMemoryRepository } from '../repositories/rootMemory.repository';
 import { IPetDocument } from './petDocument.interface';
 import { ICache } from '@infrastructure/interfaces/cache.interface';
@@ -21,6 +22,7 @@ export class PetMemoryRepository
       name: aggregate.name,
       birthDate: aggregate.birthDate,
       breed: aggregate.breed,
+      address: aggregate.address,
       createdAt: aggregate.createdAt,
       updatedAt: aggregate.updatedAt,
     };
@@ -30,8 +32,13 @@ export class PetMemoryRepository
     const nameResult = PetName.create(document.name);
     const birthDateResult = PetBirthDate.create(document.birthDate);
     const breedResult = PetBreed.create(document.breed);
-
-    if (nameResult.isFail || birthDateResult.isFail || breedResult.isFail) {
+    const addressResult = document.address ? PetAddress.create(document.address) : null;
+    if (
+      nameResult.isFail ||
+      birthDateResult.isFail ||
+      breedResult.isFail ||
+      (addressResult !== null && addressResult.isFail)
+    ) {
       throw new Error(`Data integrity error: invalid pet document [id=${document.id}]`);
     }
 
@@ -42,6 +49,7 @@ export class PetMemoryRepository
       name: nameResult.value,
       birthDate: birthDateResult.value,
       breed: breedResult.value,
+      address: addressResult?.value,
     });
   }
 }

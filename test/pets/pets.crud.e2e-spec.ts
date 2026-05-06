@@ -35,6 +35,21 @@ describe('Pets CRUD (e2e)', () => {
       expect(res.body.data.createdAt).toBeDefined();
     });
 
+    it('201 — crea un pet con dirección válida', async () => {
+      const petWithAddress = {
+        ...validPet,
+        address: { street: 'Calle Mayor 1', city: 'Madrid', zipCode: '28001' },
+      };
+
+      const res = await request(app.getHttpServer()).post('/pets').send(petWithAddress).expect(201);
+
+      expect(res.body.data).toMatchObject({
+        name: validPet.name,
+        breed: validPet.breed,
+        address: { street: 'Calle Mayor 1', city: 'Madrid', zipCode: '28001' },
+      });
+    });
+
     it('400 — falla sin nombre', async () => {
       await request(app.getHttpServer())
         .post('/pets')
@@ -43,10 +58,62 @@ describe('Pets CRUD (e2e)', () => {
     });
 
     it('400 — falla con fecha de nacimiento inválida', async () => {
-      await request(app.getHttpServer())
+      const res = await request(app.getHttpServer())
         .post('/pets')
         .send({ name: 'Rex', birthDate: 'not-a-date', breed: 'Poodle' })
         .expect(400);
+
+      expect(res.body.error.type).toBe('VALIDATION');
+      expect(res.body.error.code).toBe('HTTP.VALIDATION');
+      expect(res.body.error.message).toBe('Validation failed');
+      expect(res.body.error.details).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            property: 'birthDate',
+            errors: expect.arrayContaining([expect.stringContaining('birthDate')]),
+          }),
+        ]),
+      );
+    });
+
+    it('400 — falla con address anidado inválido', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/pets')
+        .send({
+          name: 'Rex',
+          birthDate: '2020-01-01',
+          breed: 'Poodle',
+          address: {
+            street: '',
+            city: null,
+            zipCode: '',
+          },
+        })
+        .expect(400);
+
+      expect(res.body.error.type).toBe('VALIDATION');
+      expect(res.body.error.code).toBe('HTTP.VALIDATION');
+      expect(res.body.error.details).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            property: 'address',
+            children: expect.arrayContaining([
+              expect.objectContaining({
+                property: 'street',
+                errors: expect.arrayContaining([expect.any(String)]),
+              }),
+              expect.objectContaining({
+                property: 'city',
+                errors: expect.arrayContaining([expect.any(String)]),
+              }),
+              expect.objectContaining({
+                property: 'zipCode',
+                errors: expect.arrayContaining([expect.any(String)]),
+              }),
+            ]),
+          }),
+        ]),
+      );
     });
 
     it('400 — falla con fecha de nacimiento en el futuro', async () => {

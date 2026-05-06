@@ -8,6 +8,7 @@ import { IPetRepository } from '@context/pets/domain/repositories/pet.repository
 import { PetName } from '@context/pets/domain/valueObjects/petName.vo';
 import { PetBirthDate } from '@context/pets/domain/valueObjects/petBirthDate.vo';
 import { PetBreed } from '@context/pets/domain/valueObjects/petBreed.vo';
+import { PetAddress } from '@context/pets/domain/valueObjects/petAddress.vo';
 import { petsErrors } from '@context/pets/domain/errors/pets.errors';
 import { PetTypeOrmEntity } from './petTypeOrm.entity';
 
@@ -75,6 +76,7 @@ export class PetTypeOrmRepository implements IPetRepository {
     entity.name = aggregate.name;
     entity.birthDate = aggregate.birthDate;
     entity.breed = aggregate.breed;
+    entity.address = aggregate.address ?? null;
     entity.createdAt = aggregate.createdAt;
     entity.updatedAt = aggregate.updatedAt;
     return entity;
@@ -84,8 +86,14 @@ export class PetTypeOrmRepository implements IPetRepository {
     const nameResult = PetName.create(entity.name);
     const birthDateResult = PetBirthDate.create(new Date(entity.birthDate));
     const breedResult = PetBreed.create(entity.breed);
+    const addressResult = entity.address ? PetAddress.create(entity.address) : null;
 
-    if (nameResult.isFail || birthDateResult.isFail || breedResult.isFail) {
+    if (
+      nameResult.isFail ||
+      birthDateResult.isFail ||
+      breedResult.isFail ||
+      (addressResult !== null && addressResult.isFail)
+    ) {
       throw new Error(`Data integrity error: invalid pet record [id=${entity.id}]`);
     }
 
@@ -96,6 +104,7 @@ export class PetTypeOrmRepository implements IPetRepository {
       name: nameResult.value,
       birthDate: birthDateResult.value,
       breed: breedResult.value,
+      address: addressResult?.value,
     });
   }
 }

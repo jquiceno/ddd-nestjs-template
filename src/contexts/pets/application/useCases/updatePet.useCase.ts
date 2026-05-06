@@ -15,6 +15,7 @@ export class UpdatePetUseCase implements AsyncUseCase<UpdatePetInput, UpdatePetO
       name: input.name,
       birthDate: input.birthDate,
       breed: input.breed,
+      address: input.address,
     });
     if (updatedResult.isFail) return Result.fail(updatedResult.error);
 
@@ -27,6 +28,7 @@ export class UpdatePetUseCase implements AsyncUseCase<UpdatePetInput, UpdatePetO
       name: saved.name,
       birthDate: saved.birthDate,
       breed: saved.breed,
+      address: saved.address,
       createdAt: saved.createdAt,
       updatedAt: saved.updatedAt,
     });

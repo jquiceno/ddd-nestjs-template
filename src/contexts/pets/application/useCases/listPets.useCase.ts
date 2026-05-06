@@ -14,6 +14,7 @@ export class ListPetsUseCase implements AsyncUseCase<void, ListPetsOutput[]> {
       name: aggregate.name,
       birthDate: aggregate.birthDate,
       breed: aggregate.breed,
+      address: aggregate.address,
       createdAt: aggregate.createdAt,
       updatedAt: aggregate.updatedAt,
     })));

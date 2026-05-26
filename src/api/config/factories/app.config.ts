@@ -5,5 +5,6 @@ export default registerAs('app', () => ({
   env: (process.env.NODE_ENV ?? 'development') as
     | 'development'
     | 'test'
-    | 'production'
+    | 'production',
+  swaggerEnabled: process.env.SWAGGER_ENABLED !== 'false'
 }))

@@ -1,9 +1,11 @@
 import { Controller, Get } from '@nestjs/common'
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { GetServiceInfoUseCase } from '@context/serviceInfo/application/useCases/getServiceInfo.useCase'
 import { GetServiceInfoMapper, MapperResponse } from './serviceInfo.mapper'
 import { LoggerService } from '../logging/logger.service'
 import { Result } from '@shared/domain/result/result'
 import { DomainError } from '@shared/domain/errors/domainError'
+import { GetServiceInfoDto } from './serviceInfo.dto'
 
 abstract class RootController {
   protected readonly logger: LoggerService
@@ -15,6 +17,7 @@ abstract class RootController {
   abstract _execute(): Promise<MapperResponse>
 
   @Get('info')
+  @ApiOkResponse({ type: GetServiceInfoDto })
   async execute(): Promise<Result<unknown, DomainError>> {
     this.logger.info('Executing controller')
     const result = await this._execute()
@@ -23,6 +26,7 @@ abstract class RootController {
   }
 }
 
+@ApiTags('service-info')
 @Controller()
 export class ServiceInfoController extends RootController {
   constructor(
